@@ -35,7 +35,7 @@
  * --------------------------------------------------------------------------
  */
 
-define('PLUGIN_NEWDPOREGISTER_VERSION', '2.0.0');
+define('PLUGIN_NEWDPOREGISTER_VERSION', '2.0.1');
 
 /**
  * Init hooks of the plugin.
@@ -47,6 +47,20 @@ function plugin_init_newdporegister() {
    global $PLUGIN_HOOKS;
 
    $PLUGIN_HOOKS['csrf_compliant']['newdporegister'] = true;
+
+   if (Session::getLoginUserID()) {
+
+      // Profile Rights Management
+      Plugin::registerClass('PluginNewdporegisterProfile', array('addtabon' => array('Profile')));
+
+      // Tab
+      Plugin::registerClass('PluginNewdporegisterProcessing');
+      $PLUGIN_HOOKS["menu_toadd"]['newdporegister'] = ['management' => 'PluginNewdporegisterProcessing'];
+
+      // CSS
+
+
+   }
 }
 
 /**
@@ -57,14 +71,14 @@ function plugin_init_newdporegister() {
  */
 function plugin_version_newdporegister() {
    return [
-      'name'           => 'NewDpoRegister',
+      'name'           => '(New) Dpo-Register',
       'version'        => PLUGIN_NEWDPOREGISTER_VERSION,
-      'author'         => '<a href="http://www.teclib.com">Teclib\'</a>',
-      'license'        => '',
-      'homepage'       => '',
+      'author'         => '<a href="https://github.com/karhel/">Karhel Tmarr\'</a>',
+      'license'        => 'GPLv3+',
+      'homepage'       => 'https://github.com/karhel/glpi-newdporegister',
       'requirements'   => [
          'glpi' => [
-            'min' => '9.2',
+            'min' => '9.5',
          ]
       ]
    ];
@@ -77,13 +91,25 @@ function plugin_version_newdporegister() {
  * @return boolean
  */
 function plugin_newdporegister_check_prerequisites() {
+   global $DB;
 
    //Version check is not done by core in GLPI < 9.2 but has to be delegated to core in GLPI >= 9.2.
    $version = preg_replace('/^((\d+\.?)+).*$/', '$1', GLPI_VERSION);
-   if (version_compare($version, '9.2', '<')) {
-      echo "This plugin requires GLPI >= 9.2";
+   if (version_compare($version, '9.5', '<')) {
+      echo "This plugin requires GLPI >= 9.5";
       return false;
    }
+   
+   // Check presence of older DPO-Register Plugin
+   $query = "SELECT * FROM glpi_plugins WHERE directory = 'dporegister' and state = 1;";
+   $resultQuery = $DB->query($query);
+   if($DB->numRows($resultQuery) == 1) {
+      return false;
+
+   } else { 
+      echo __('The old version of DPO-Register plugin is present or already installed and in conflict.', 'newdporegister');
+   }
+
    return true;
 }
 

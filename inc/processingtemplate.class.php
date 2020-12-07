@@ -35,51 +35,14 @@
  * --------------------------------------------------------------------------
  */
 
-function plugin_newdporegister_classes()
+if (!defined('GLPI_ROOT')) {
+    die("Sorry. You can't access this file directly");
+}
+
+class PluginNewdporegisterProcessingTemplate extends ITILTemplate
 {
-    return [
-        'Profile',
-        'Processing',
-    ];
-}
-
-/**
- * Plugin install process
- *
- * @return boolean
- */
-function plugin_newdporegister_install() { 
-   
-   $migration = new Migration(PLUGIN_NEWDPOREGISTER_VERSION);
-   $classesToInstall = plugin_newdporegister_classes();
-
-   foreach ($classesToInstall as $className) {
-
-       require_once('inc/' . strtolower($className) . '.class.php');
-
-       $fullclassname = 'PluginNewdporegister' . $className;
-       $fullclassname::install($migration, PLUGIN_NEWDPOREGISTER_VERSION);
-   }
-
-   return true;
-}
-
-/**
- * Plugin uninstall process
- *
- * @return boolean
- */
-function plugin_newdporegister_uninstall() {
-
-   $classesToUninstall = plugin_newdporegister_classes();
-
-    foreach ($classesToUninstall as $className) {
-
-        require_once('inc/' . strtolower($className) . '.class.php');
-
-        $fullclassname = 'PluginNewdporegister' . $className;
-        $fullclassname::uninstall();
+    static function getTypeName($nb = 0) 
+    {
+        return _n('Processing template', 'Processing templates', $nb, 'newdporegister');
     }
-
-    return true;
 }

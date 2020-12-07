@@ -35,51 +35,29 @@
  * --------------------------------------------------------------------------
  */
 
-function plugin_newdporegister_classes()
-{
-    return [
-        'Profile',
-        'Processing',
-    ];
+include("../../../inc/includes.php");
+
+
+if (Session::getCurrentInterface() == 'central') {
+
+    Html::header(
+        __('DPO Register', 'newdporegister'),
+        $_SERVER['PHP_SELF'],
+        'management',
+        'PluginNewdporegisterProcessing'
+    );
+}
+else {
+
+   Html::helpHeader(PluginNewdporegisterProcessing::getTypeName(2));
 }
 
-/**
- * Plugin install process
- *
- * @return boolean
- */
-function plugin_newdporegister_install() { 
-   
-   $migration = new Migration(PLUGIN_NEWDPOREGISTER_VERSION);
-   $classesToInstall = plugin_newdporegister_classes();
+$processing = new PluginNewdporegisterProcessing();
+$processing->checkGlobal(READ);
 
-   foreach ($classesToInstall as $className) {
+if ($processing->canView()) {  
 
-       require_once('inc/' . strtolower($className) . '.class.php');
-
-       $fullclassname = 'PluginNewdporegister' . $className;
-       $fullclassname::install($migration, PLUGIN_NEWDPOREGISTER_VERSION);
-   }
-
-   return true;
+    Search::show('PluginNewdporegisterProcessing');
 }
 
-/**
- * Plugin uninstall process
- *
- * @return boolean
- */
-function plugin_newdporegister_uninstall() {
-
-   $classesToUninstall = plugin_newdporegister_classes();
-
-    foreach ($classesToUninstall as $className) {
-
-        require_once('inc/' . strtolower($className) . '.class.php');
-
-        $fullclassname = 'PluginNewdporegister' . $className;
-        $fullclassname::uninstall();
-    }
-
-    return true;
-}
+Html::footer();
